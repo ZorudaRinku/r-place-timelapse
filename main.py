@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 
 def attributes():
-	start_pos, end_pos, resize_factor, duration = [], [], 0, 0
+	start_pos, end_pos, resize_factor, duration, codec, codec_file = [], [], 0, 0, "", ""
 
 	try:
 		start_pos = input("Enter start position (Ex: 0,0): ").split(",")
@@ -16,6 +16,18 @@ def attributes():
 
 		resize_factor = int(input("Resolution Multiplication (Recommended: 5-10): "))
 		duration = int(input("Duration (In Seconds): "))
+
+		h264 = input("Use H264 Cisco Codec? (Better video compression for larger timelapses) (Y/n): ")
+
+		if h264.lower() == "y" or h264.lower() == "":
+			codec = "avc1"
+			codec_version = ["openh264-1.8.0-win64.dll", "libopenh264-1.8.0-linux64.4.so", "libopenh264-1.8.0-osx64.4.dylib"]
+			operating_system = int(input("Operating System (For Codec) [1: Windows, 2: Linux, 3: MacOS]: "))
+			if operating_system in [1, 2, 3]:
+				codec_file = codec_version[operating_system - 1]
+
+		else:
+			codec = "mp4v"
 
 	except ValueError:
 		print("Invalid input, must be formatted as 'x,y'")
@@ -28,7 +40,7 @@ def attributes():
 		print("Ending Position must be greater than Starting Position")
 		exit()
 
-	return start_pos, end_pos, resize_factor, duration
+	return start_pos, end_pos, resize_factor, duration, codec, codec_file
 
 
 def crop_image(image, start_pos, end_pos, index):
@@ -39,29 +51,34 @@ def crop_image(image, start_pos, end_pos, index):
 
 
 def main():
+	# Get the attributes from the user
+	start_pos, end_pos, resize_factor, duration, codec, codec_file = attributes()
+
 	# Check that we have Cisco Openh264 DLL installed in the script directory
-	if not os.path.exists("./openh264-1.8.0-win64.dll"):
-		# Ask user for permission to download OpenH264 DLL
-		download = input("OpenH264 DLL not found, would you like to automatically download it from https://github.com/cisco/openh264/releases/tag/v1.8.0 ? (Y/n): ")
-		if download.lower() != "y" and download.lower() != "":
-			# Give instructions on how to download OpenH264 DLL
-			print("Please download OpenH264 DLL from https://github.com/cisco/openh264/releases/tag/v1.8.0, unpack it, and place it in the same directory as this script")
-			exit()
+	if codec == "avc1":
+		if not os.path.exists(codec_file):
+			# Ask user for permission to download OpenH264 DLL
+			download = input("OpenH264 not found, would you like to automatically download it from https://github.com/cisco/openh264/releases/tag/v1.8.0 ? (Y/n): ")
+			if download.lower() != "y" and download.lower() != "":
+				# Give instructions on how to download OpenH264 DLL
+				print("Please download OpenH264 DLL from https://github.com/cisco/openh264/releases/tag/v1.8.0, unpack it, and place it in the same directory as this script")
+				exit()
 
-		# Download OpenH264 DLL from GitHub and unpack it into working directory
-		import requests
-		import bz2
+			# Download OpenH264 DLL from GitHub and unpack it into working directory
+			import requests
+			import bz2
 
-		print(f"Downloading OpenH264 from https://github.com/cisco/openh264/releases/download/v1.8.0/openh264-1.8.0-win64.dll.bz2...")
-		r = requests.get(f"https://github.com/cisco/openh264/releases/download/v1.8.0/openh264-1.8.0-win64.dll.bz2")
-		if r.status_code != 200:
-			print(r.raise_for_status())
-			exit()
-		open(f"openh264-1.8.0-win64.dll.bz2", 'wb').write(r.content)
-		print("Extracting...")
-		zip_data = bz2.BZ2File(f"openh264-1.8.0-win64.dll.bz2").read()
-		open(f"openh264-1.8.0-win64.dll", 'wb').write(zip_data)
-		os.remove(f"openh264-1.8.0-win64.dll.bz2")
+			print(f"Downloading OpenH264 from https://github.com/cisco/openh264/releases/download/v1.8.0/{codec_file}.bz2...")
+			r = requests.get(f"https://github.com/cisco/openh264/releases/download/v1.8.0/{codec_file}.bz2")
+			if r.status_code != 200:
+				print(r.raise_for_status())
+				exit()
+			open(codec_file + ".bz2", 'wb').write(r.content)
+
+			print("Extracting...")
+			zip_data = bz2.BZ2File(codec_file + ".bz2").read()
+			open(codec_file, 'wb').write(zip_data)
+			os.remove(codec_file + ".bz2")
 
 	if not os.path.exists("./images"):
 		os.makedirs("./images")
@@ -95,15 +112,12 @@ def main():
 		shutil.register_unpack_format('7zip', ['.7z'], unpack_7zarchive)
 		shutil.unpack_archive('./rplace_archive.7z', './images')
 
-	# Get the attributes from the user
-	start_pos, end_pos, resize_factor, duration = attributes()
-
 	# Get the video dimensions
 	frame_width = end_pos[0] - start_pos[0]
 	frame_height = end_pos[1] - start_pos[1]
 
 	# Create out video output
-	out = cv2.VideoWriter("./final.mp4", cv2.VideoWriter_fourcc(*'avc1'), round(len(os.listdir("./images"))/duration), (frame_width * resize_factor, frame_height * resize_factor))
+	out = cv2.VideoWriter("./final.mp4", cv2.VideoWriter_fourcc(*codec), round(len(os.listdir("./images"))/duration), (frame_width * resize_factor, frame_height * resize_factor))
 
 	# Iterate through the images in ./images and crop them to ./cropped
 	length = len(os.listdir("./images"))
