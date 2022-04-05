@@ -40,7 +40,7 @@ def crop_image(image, start_pos, end_pos, index):
 
 def main():
 	# Check that we have Cisco Openh264 DLL installed in the script directory
-	if not os.path.exists("./openh264-1.8.0-win64.dll") and not os.path.exists("./openh264-1.8.0-win32.dll"):
+	if not os.path.exists("./openh264-1.8.0-win64.dll"):
 		# Ask user for permission to download OpenH264 DLL
 		download = input("OpenH264 DLL not found, would you like to automatically download it from https://github.com/cisco/openh264/releases/tag/v1.8.0 ? (Y/n): ")
 		if download.lower() != "y" and download.lower() != "":
@@ -52,20 +52,16 @@ def main():
 		import requests
 		import bz2
 
-		architecture = None
-		while architecture != "32" and architecture != "64":
-			architecture = input("Would you like to download the 32-bit or 64-bit version of OpenH264? (32/64) (if unsure, default to 32): ")
-			if architecture == "32" or architecture == "64":
-				print(f"Downloading {architecture}-bit version of OpenH264 from https://github.com/cisco/openh264/releases/download/v1.8.0/openh264-1.8.0-win{architecture}.dll.bz2...")
-				r = requests.get(f"https://github.com/cisco/openh264/releases/download/v1.8.0/openh264-1.8.0-win{architecture}.dll.bz2")
-				if r.status_code != 200:
-					print(r.raise_for_status())
-					exit()
-				open(f"openh264-1.8.0-win{architecture}.dll.bz2", 'wb').write(r.content)
-				print("Extracting...")
-				zip_data = bz2.BZ2File(f"openh264-1.8.0-win{architecture}.dll.bz2").read()
-				open(f"openh264-1.8.0-win{architecture}.dll", 'wb').write(zip_data)
-				os.remove(f"openh264-1.8.0-win{architecture}.dll.bz2")
+		print(f"Downloading OpenH264 from https://github.com/cisco/openh264/releases/download/v1.8.0/openh264-1.8.0-win64.dll.bz2...")
+		r = requests.get(f"https://github.com/cisco/openh264/releases/download/v1.8.0/openh264-1.8.0-win64.dll.bz2")
+		if r.status_code != 200:
+			print(r.raise_for_status())
+			exit()
+		open(f"openh264-1.8.0-win64.dll.bz2", 'wb').write(r.content)
+		print("Extracting...")
+		zip_data = bz2.BZ2File(f"openh264-1.8.0-win64.dll.bz2").read()
+		open(f"openh264-1.8.0-win64.dll", 'wb').write(zip_data)
+		os.remove(f"openh264-1.8.0-win64.dll.bz2")
 
 	if not os.path.exists("./images"):
 		os.makedirs("./images")
