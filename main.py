@@ -58,6 +58,9 @@ def main():
 			if architecture == "32" or architecture == "64":
 				print(f"Downloading {architecture}-bit version of OpenH264 from https://github.com/cisco/openh264/releases/download/v1.8.0/openh264-1.8.0-win{architecture}.dll.bz2...")
 				r = requests.get(f"https://github.com/cisco/openh264/releases/download/v1.8.0/openh264-1.8.0-win{architecture}.dll.bz2")
+				if r.status_code != 200:
+					print(r.raise_for_status())
+					exit()
 				open(f"openh264-1.8.0-win{architecture}.dll.bz2", 'wb').write(r.content)
 				print("Extracting...")
 				zip_data = bz2.BZ2File(f"openh264-1.8.0-win{architecture}.dll.bz2").read()
@@ -86,6 +89,9 @@ def main():
 		if not os.path.exists("./rplace_archive.7z"):
 			print("Downloading images from https://zevs.me/rplace_archive.7z... This may take awhile...")
 			r = requests.get("https://zevs.me/rplace_archive.7z")
+			if r.status_code != 200:
+				print(r.raise_for_status())
+				exit()
 			open("./rplace_archive.7z", 'wb').write(r.content)
 
 		# Unpack archive
@@ -122,7 +128,6 @@ def main():
 	length = len(image_list)
 	with tqdm(total=length, desc="Creating video...") as bar:
 		for image in image_list:
-			print("Adding image to video: {}/{}".format(image_list.index(image), length))
 			image_frame = cv2.imread(image)
 			resized = cv2.resize(image_frame, (frame_width * resize_factor, frame_height * resize_factor), interpolation=cv2.INTER_NEAREST)
 			out.write(resized)
