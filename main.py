@@ -89,7 +89,7 @@ def main():
 	if len(os.listdir("./images")) == 0:
 		print("No images found, please place images in ./images")
 		download = input("Would you like to automatically download and unpack images from https://zevs.me/rplace_archive.7z (10.6GB)? (Y/n): ")
-		if download != "y" and download != "":
+		if download.lower() != "y" and download.lower() != "":
 			print("Please download images from https://zevs.me/rplace_archive.7z (Or elsewhere), and unpack them in ./images directory\n(Note: zevs.me archive has a subdirectory. Do not include this subdirectory in ./images)")
 			exit()
 
