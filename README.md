@@ -24,7 +24,7 @@ Run the script with `python3 main.py`
 Script will prompt for the following:
 
 * Downloading h264 codec from Cisco Github repo (Automatic optional)
-    * If no, place `openh264-1.8.0-win32.dll` or `openh264-1.8.0-win64.dll` into script directory
+    * If no, place `openh264-1.8.0-win64.dll` into script directory
 * Downloading archive images from zevs.me r/place archive (Automatic optional)
     * If no, place `.png` images in `images/` directory
 * Coordinates of the region of interest
