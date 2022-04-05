@@ -1,16 +1,10 @@
 # r-place-timelapse
-
----
 [![forthebadge](https://forthebadge.com/images/badges/made-with-python.svg)](https://forthebadge.com)
 [![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)
 ## About
-
----
 This is a script to create a timelapse video from an archive of /r/Place (https://www.reddit.com/r/place/).
 
 ## Features
-
----
 * Crop /r/Place images to custom bounds to select a region of interest.
 * Upscales images to HD and packs them into a timelapse of custom length.
 * Creates H264 .mp4 video.
@@ -20,15 +14,11 @@ This is a script to create a timelapse video from an archive of /r/Place (https:
 [![/r/KickOpenTheDoor](https://cdn.discordapp.com/attachments/777290393544818718/960954482211029043/kick-open-the-door.gif)](https://www.reddit.com/r/KickOpenTheDoor)
 
 ## Requirements
-
----
 * [Latest Version of Python 3](https://www.python.org/downloads/)
 * Install requirements with `pip install -r requirements.txt`
 * Currently, only supports Windows
 
 ## Usage
-
----
 Run the script with `python3 main.py`
 
 Script will prompt for the following:
