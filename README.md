@@ -11,7 +11,7 @@ This is a script to create a timelapse video from an archive of /r/Place (https:
 * Automatically download archive images from zevs.me r/place archive and unpack them.
 * Automatically download h264 codec from Cisco.
 
-[![/r/KickOpenTheDoor](https://cdn.discordapp.com/attachments/777290393544818718/960954482211029043/kick-open-the-door.gif)](https://www.reddit.com/r/KickOpenTheDoor)
+[![/r/KickOpenTheDoor](https://imgur.com/M9afyCB.gif)](https://www.reddit.com/r/KickOpenTheDoor)
 
 ## Requirements
 * [Latest Version of Python 3](https://www.python.org/downloads/)
