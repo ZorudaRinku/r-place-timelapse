@@ -95,12 +95,6 @@ def main():
 		shutil.register_unpack_format('7zip', ['.7z'], unpack_7zarchive)
 		shutil.unpack_archive('./rplace_archive.7z', './images')
 
-		# Move images to ./images and remove directory
-		print("Moving images from ./images/combined/ to ./images/...")
-		for file in os.listdir("./images/combined/"):
-			shutil.move("./images/combined/" + file, "./images/" + file)
-		os.rmdir("./images/combined/")
-
 	# Get the attributes from the user
 	start_pos, end_pos, resize_factor, duration = attributes()
 
