@@ -114,11 +114,11 @@ def main():	# Get the attributes from the user
 		shutil.unpack_archive('./rplace_archive.7z', './images')
 
 	# Get the video dimensions
-	frame_width = end_pos[0] - start_pos[0]
-	frame_height = end_pos[1] - start_pos[1]
+	frame_width = (end_pos[0] - start_pos[0]) * resize_factor
+	frame_height = (end_pos[1] - start_pos[1]) * resize_factor
 
 	# Create out video output
-	out = cv2.VideoWriter("./final.mp4", cv2.VideoWriter_fourcc(*codec), round(len(os.listdir("./images"))/duration), (frame_width * resize_factor, frame_height * resize_factor))
+	out = cv2.VideoWriter("./final.mp4", cv2.VideoWriter_fourcc(*codec), round(len(os.listdir("./images"))/duration), (frame_width, frame_height))
 
 	# Iterate through the images in ./images and crop them to ./cropped
 	length = len(os.listdir("./images"))
@@ -134,7 +134,7 @@ def main():	# Get the attributes from the user
 	with tqdm(total=length, desc="Creating video...") as bar:
 		for image in image_list:
 			image_frame = cv2.imread(image)
-			resized = cv2.resize(image_frame, (frame_width * resize_factor, frame_height * resize_factor), interpolation=cv2.INTER_NEAREST)
+			resized = cv2.resize(image_frame, (frame_width, frame_height), interpolation=cv2.INTER_NEAREST)
 			out.write(resized)
 			bar.update()
 
