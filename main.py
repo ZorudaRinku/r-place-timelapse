@@ -1,5 +1,7 @@
 import glob
 import os
+import platform
+
 import cv2
 from tqdm import tqdm
 import logging
@@ -21,10 +23,16 @@ def attributes():
 
 		if h264.lower() == "y" or h264.lower() == "":
 			codec = "avc1"
-			codec_version = ["openh264-1.8.0-win64.dll", "libopenh264-1.8.0-linux64.4.so", "libopenh264-1.8.0-osx64.4.dylib"]
-			operating_system = int(input("Operating System (For Codec) [1: Windows, 2: Linux, 3: MacOS]: "))
-			if operating_system in [1, 2, 3]:
-				codec_file = codec_version[operating_system - 1]
+			codec_version = {"Windows": "openh264-1.8.0-win64.dll", "Linux": "libopenh264-1.8.0-linux64.4.so", "MacOS": "libopenh264-1.8.0-osx64.4.dylib"}
+			sys = platform.system()
+			logging.info(f"Detected system as {sys}")
+
+			if sys not in codec_version.keys():
+				operating_system = int(input("Operating System (For Codec) [1: Windows, 2: Linux, 3: MacOS]: "))
+				codec_file = list(codec_version.values())[operating_system - 1]
+			else:
+				codec_file = codec_version[sys]
+
 
 		else:
 			codec = "mp4v"
