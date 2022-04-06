@@ -23,7 +23,7 @@ def attributes():
 
 		if h264.lower() == "y" or h264.lower() == "":
 			codec = "avc1"
-			codec_version = {"Windows": "openh264-1.8.0-win64.dll", "MacOS": "libopenh264-1.8.0-osx64.4.dylib"}
+			codec_version = {"Windows": "openh264-1.8.0-win64.dll", "Darwin": "libopenh264-1.8.0-osx64.4.dylib"}
 			sys = platform.system()
 			logging.info(f"Detected system as {sys}")
 
