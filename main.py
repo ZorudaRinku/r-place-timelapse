@@ -51,7 +51,7 @@ def crop_image(image, start_pos, end_pos, index):
 
 
 def main():	# Get the attributes from the user
-	logging.basicConfig(format='[%(asctime)s]: %(message)s', datefmt='%H:%M:%S')
+	logging.basicConfig(format='[%(asctime)s]: %(message)s', datefmt='%H:%M:%S', level=logging.INFO)
 
 	start_pos, end_pos, resize_factor, duration, codec, codec_file = attributes()
 
