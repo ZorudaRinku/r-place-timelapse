@@ -19,21 +19,19 @@ def attributes():
 		resize_factor = int(input("Resolution Multiplication (Recommended: 5-10): "))
 		duration = int(input("Duration (In Seconds): "))
 
-		h264 = input("Use H264 Cisco Codec? (Better video compression for larger timelapses) (Y/n): ")
+		h264 = input("Use H264 Cisco Codec? (Smaller file size, Only supported for Windows and MacOS) (Y/n): ")
 
 		if h264.lower() == "y" or h264.lower() == "":
 			codec = "avc1"
-			codec_version = {"Windows": "openh264-1.8.0-win64.dll", "Linux": "libopenh264-1.8.0-linux64.4.so", "MacOS": "libopenh264-1.8.0-osx64.4.dylib"}
+			codec_version = {"Windows": "openh264-1.8.0-win64.dll", "MacOS": "libopenh264-1.8.0-osx64.4.dylib"}
 			sys = platform.system()
 			logging.info(f"Detected system as {sys}")
 
 			if sys not in codec_version.keys():
-				operating_system = int(input("Operating System (For Codec) [1: Windows, 2: Linux, 3: MacOS]: "))
+				operating_system = int(input("Operating System (For Codec) [1: Windows, 2: MacOS]: "))
 				codec_file = list(codec_version.values())[operating_system - 1]
 			else:
 				codec_file = codec_version[sys]
-
-
 		else:
 			codec = "mp4v"
 
