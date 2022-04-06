@@ -1,15 +1,17 @@
 import glob
 import os
+import platform
+
 import cv2
 from tqdm import tqdm
-
+import logging
 
 def attributes():
-	start_pos, end_pos, resize_factor, duration = [], [], 0, 0
+	start_pos, end_pos, resize_factor, duration, codec, codec_file = [], [], 0, 0, "", ""
 
 	try:
 		start_pos = input("Enter start position (Ex: 0,0): ").split(",")
-		end_pos = input("Enter start position (Ex: 2000,2000): ").split(",")
+		end_pos = input("Enter start position (Ex: 1999,1999): ").split(",")
 
 		start_pos = (int(start_pos[0]), int(start_pos[1]))
 		end_pos = (int(end_pos[0]), int(end_pos[1]))
@@ -17,18 +19,34 @@ def attributes():
 		resize_factor = int(input("Resolution Multiplication (Recommended: 5-10): "))
 		duration = int(input("Duration (In Seconds): "))
 
+		h264 = input("Use H264 Cisco Codec? (Smaller file size, Only supported for Windows and MacOS) (Y/n): ")
+
+		if h264.lower() == "y" or h264.lower() == "":
+			codec = "avc1"
+			codec_version = {"Windows": "openh264-1.8.0-win64.dll", "MacOS": "libopenh264-1.8.0-osx64.4.dylib"}
+			sys = platform.system()
+			logging.info(f"Detected system as {sys}")
+
+			if sys not in codec_version.keys():
+				operating_system = int(input("Operating System (For Codec) [1: Windows, 2: MacOS]: "))
+				codec_file = list(codec_version.values())[operating_system - 1]
+			else:
+				codec_file = codec_version[sys]
+		else:
+			codec = "mp4v"
+
 	except ValueError:
-		print("Invalid input, must be formatted as 'x,y'")
+		logging.info("Invalid input, must be formatted as 'x,y'")
 		exit()
 	except IndexError:
-		print("Invalid input, must be formatted as 'x,y'")
+		logging.info("Invalid input, must be formatted as 'x,y'")
 		exit()
 
 	if start_pos[0] > end_pos[0] or start_pos[1] > end_pos[1]:
-		print("Ending Position must be greater than Starting Position")
+		logging.info("Ending Position must be greater than Starting Position")
 		exit()
 
-	return start_pos, end_pos, resize_factor, duration
+	return start_pos, end_pos, resize_factor, duration, codec, codec_file
 
 
 def crop_image(image, start_pos, end_pos, index):
@@ -38,30 +56,36 @@ def crop_image(image, start_pos, end_pos, index):
 		cv2.imwrite("./cropped/" + str(index) + ".png", img)
 
 
-def main():
+def main():	# Get the attributes from the user
+	logging.basicConfig(format='[%(asctime)s]: %(message)s', datefmt='%H:%M:%S', level=logging.INFO)
+
+	start_pos, end_pos, resize_factor, duration, codec, codec_file = attributes()
+
 	# Check that we have Cisco Openh264 DLL installed in the script directory
-	if not os.path.exists("./openh264-1.8.0-win64.dll"):
-		# Ask user for permission to download OpenH264 DLL
-		download = input("OpenH264 DLL not found, would you like to automatically download it from https://github.com/cisco/openh264/releases/tag/v1.8.0 ? (Y/n): ")
-		if download.lower() != "y" and download.lower() != "":
-			# Give instructions on how to download OpenH264 DLL
-			print("Please download OpenH264 DLL from https://github.com/cisco/openh264/releases/tag/v1.8.0, unpack it, and place it in the same directory as this script")
-			exit()
+	if codec == "avc1":
+		if not os.path.exists(codec_file):
+			# Ask user for permission to download OpenH264 DLL
+			download = input("OpenH264 not found, would you like to automatically download it from https://github.com/cisco/openh264/releases/tag/v1.8.0 ? (Y/n): ")
+			if download.lower() != "y" and download.lower() != "":
+				# Give instructions on how to download OpenH264 DLL
+				logging.error("Please download OpenH264 DLL from https://github.com/cisco/openh264/releases/tag/v1.8.0, unpack it, and place it in the same directory as this script")
+				exit()
 
-		# Download OpenH264 DLL from GitHub and unpack it into working directory
-		import requests
-		import bz2
+			# Download OpenH264 DLL from GitHub and unpack it into working directory
+			import requests
+			import bz2
 
-		print(f"Downloading OpenH264 from https://github.com/cisco/openh264/releases/download/v1.8.0/openh264-1.8.0-win64.dll.bz2...")
-		r = requests.get(f"https://github.com/cisco/openh264/releases/download/v1.8.0/openh264-1.8.0-win64.dll.bz2")
-		if r.status_code != 200:
-			print(r.raise_for_status())
-			exit()
-		open(f"openh264-1.8.0-win64.dll.bz2", 'wb').write(r.content)
-		print("Extracting...")
-		zip_data = bz2.BZ2File(f"openh264-1.8.0-win64.dll.bz2").read()
-		open(f"openh264-1.8.0-win64.dll", 'wb').write(zip_data)
-		os.remove(f"openh264-1.8.0-win64.dll.bz2")
+			logging.info(f"Downloading OpenH264 from https://github.com/cisco/openh264/releases/download/v1.8.0/{codec_file}.bz2...")
+			r = requests.get(f"https://github.com/cisco/openh264/releases/download/v1.8.0/{codec_file}.bz2")
+			if r.status_code != 200:
+				logging.error(r.raise_for_status())
+				exit()
+			open(codec_file + ".bz2", 'wb').write(r.content)
+
+			logging.info("Extracting...")
+			zip_data = bz2.BZ2File(codec_file + ".bz2").read()
+			open(codec_file, 'wb').write(zip_data)
+			os.remove(codec_file + ".bz2")
 
 	if not os.path.exists("./images"):
 		os.makedirs("./images")
@@ -70,10 +94,10 @@ def main():
 		os.makedirs("./cropped")
 
 	if len(os.listdir("./images")) == 0:
-		print("No images found, please place images in ./images")
+		logging.info("No images found, please place images in ./images")
 		download = input("Would you like to automatically download and unpack images from https://zevs.me/rplace_archive.7z (10.6GB)? (Y/n): ")
-		if download != "y" and download != "":
-			print("Please download images from https://zevs.me/rplace_archive.7z (Or elsewhere), and unpack them in ./images directory\n(Note: zevs.me archive has a subdirectory. Do not include this subdirectory in ./images)")
+		if download.lower() != "y" and download.lower() != "":
+			logging.error("Please download images from https://zevs.me/rplace_archive.7z (Or elsewhere), and unpack them in ./images directory\n(Note: zevs.me archive has a subdirectory. Do not include this subdirectory in ./images)")
 			exit()
 
 		# Download images from zevs.me and unpack them to ./images
@@ -83,27 +107,24 @@ def main():
 
 		# Download archive
 		if not os.path.exists("./rplace_archive.7z"):
-			print("Downloading images from https://zevs.me/rplace_archive.7z... This may take awhile...")
+			logging.info("Downloading images from https://zevs.me/rplace_archive.7z... This may take awhile...")
 			r = requests.get("https://zevs.me/rplace_archive.7z")
 			if r.status_code != 200:
-				print(r.raise_for_status())
+				logging.error(r.raise_for_status())
 				exit()
 			open("./rplace_archive.7z", 'wb').write(r.content)
 
 		# Unpack archive
-		print("Extracting... This may take awhile...")
+		logging.info("Extracting... This may take awhile...")
 		shutil.register_unpack_format('7zip', ['.7z'], unpack_7zarchive)
 		shutil.unpack_archive('./rplace_archive.7z', './images')
 
-	# Get the attributes from the user
-	start_pos, end_pos, resize_factor, duration = attributes()
-
 	# Get the video dimensions
-	frame_width = end_pos[0] - start_pos[0]
-	frame_height = end_pos[1] - start_pos[1]
+	frame_width = (end_pos[0] - start_pos[0]) * resize_factor
+	frame_height = (end_pos[1] - start_pos[1]) * resize_factor
 
 	# Create out video output
-	out = cv2.VideoWriter("./final.mp4", cv2.VideoWriter_fourcc(*'avc1'), round(len(os.listdir("./images"))/duration), (frame_width * resize_factor, frame_height * resize_factor))
+	out = cv2.VideoWriter("./final.mp4", cv2.VideoWriter_fourcc(*codec), round(len(os.listdir("./images"))/duration), (frame_width, frame_height))
 
 	# Iterate through the images in ./images and crop them to ./cropped
 	length = len(os.listdir("./images"))
@@ -119,18 +140,18 @@ def main():
 	with tqdm(total=length, desc="Creating video...") as bar:
 		for image in image_list:
 			image_frame = cv2.imread(image)
-			resized = cv2.resize(image_frame, (frame_width * resize_factor, frame_height * resize_factor), interpolation=cv2.INTER_NEAREST)
+			resized = cv2.resize(image_frame, (frame_width, frame_height), interpolation=cv2.INTER_NEAREST)
 			out.write(resized)
 			bar.update()
 
 	out.release()
 
 	# Delete the cropped images from ./cropped
-	print("Done! Cleaning up files...")
+	logging.info("Done! Cleaning up files...")
 	for image in os.listdir("./cropped"):
 		os.remove("./cropped/" + image)
 
-	print("Done cleaning up files! It was fun creating a /r/Place with you!")
+	logging.info("Done cleaning up files! It was fun creating a /r/Place with you!")
 
 
 if __name__ == "__main__":

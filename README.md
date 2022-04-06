@@ -7,16 +7,16 @@ This is a script to create a timelapse video from an archive of /r/Place (https:
 ## Features
 * Crop /r/Place images to custom bounds to select a region of interest.
 * Upscales images to HD and packs them into a timelapse of custom length.
-* Creates H264 .mp4 video.
+* Creates H264 or MP4V .mp4 video 
 * Automatically download archive images from zevs.me r/place archive and unpack them.
 * Automatically download h264 codec from Cisco.
+* Support for Windows, Linux, and Mac. (h264 codec is only available on Windows and Mac)
 
 [![/r/KickOpenTheDoor](https://imgur.com/M9afyCB.gif)](https://www.reddit.com/r/KickOpenTheDoor)
 
 ## Requirements
 * [Latest Version of Python 3](https://www.python.org/downloads/)
 * Install requirements with `pip install -r requirements.txt`
-* Currently, only supports Windows
 
 ## Usage
 Run the script with `python3 main.py`
@@ -24,7 +24,7 @@ Run the script with `python3 main.py`
 Script will prompt for the following:
 
 * Downloading h264 codec from Cisco Github repo (Automatic optional)
-    * If no, place `openh264-1.8.0-win32.dll` or `openh264-1.8.0-win64.dll` into script directory
+    * If no, place `openh264-1.8.0-win64.dll` into script directory
 * Downloading archive images from zevs.me r/place archive (Automatic optional)
     * If no, place `.png` images in `images/` directory
 * Coordinates of the region of interest
