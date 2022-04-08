@@ -11,7 +11,7 @@ def attributes():
 
 	try:
 		start_pos = input("Enter start position (Ex: 0,0): ").split(",")
-		end_pos = input("Enter start position (Ex: 1999,1999): ").split(",")
+		end_pos = input("Enter end position (Ex: 1999,1999): ").split(",")
 
 		start_pos = (int(start_pos[0]), int(start_pos[1]))
 		end_pos = (int(end_pos[0]), int(end_pos[1]))
